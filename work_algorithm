@@ -1,0 +1,68 @@
+# Импортируем необходимые библиотеки
+import numpy as np
+
+# Определяем класс для ПИД-регулятора
+class PIDController:
+    def __init__(self, kp, ki, kd, set_point):
+        """
+        Инициализация ПИД-регулятора с коэффициентами и заданным значением
+        kp, ki, kd - коэффициенты пропорциональной, интегральной и дифференциальной составляющих
+        set_point - желаемое значение управляемой величины
+        """
+        self.kp = kp
+        self.ki = ki
+        self.kd = kd
+        self.set_point = set_point
+        self.integral = 0
+        self.prev_error = 0
+
+    def update(self, measured_value, dt):
+        """
+        Обновление ПИД-регулятора
+        measured_value - измеренное значение управляемой величины
+        dt - временной шаг
+        """
+        # Рассчитываем ошибку
+        error = self.set_point - measured_value
+        
+        # Рассчитываем составляющие ПИД-регулятора
+        self.integral += error * dt
+        derivative = (error - self.prev_error) / dt
+        
+        # Рассчитываем выходное значение
+        output = self.kp * error + self.ki * self.integral + self.kd * derivative
+        
+        # Обновляем предыдущую ошибку
+        self.prev_error = error
+        
+        return output
+
+# Создаем экземпляры ПИД-регуляторов для температуры и соотношения газ-воздух
+pid_temperature = PIDController(kp=2.0, ki=0.0, kd=1.0, set_point=100) # Задаем желаемую температуру в градусах
+pid_gas_air_ratio = PIDController(kp=1.0, ki=0.1, kd=0.05, set_point=0.5) # Задаем желаемое соотношение газ/воздух
+
+# Переменные для симуляции процесса
+current_temperature = 90  # Текущая температура
+current_gas_air_ratio = 0.6  # Текущее соотношение газ/воздух
+dt = 0.1  # Временной шаг (100 мс)
+
+# Функция симуляции управления процессом
+def control_process():
+    # Симуляция работы системы управления в течение 10 секунд
+    for _ in range(int(10/dt)):
+        # Получаем выходные сигналы ПИД-регуляторов
+        temp_control_signal = pid_temperature.update(current_temperature, dt)
+        gas_air_control_signal = pid_gas_air_ratio.update(current_gas_air_ratio, dt)
+        
+        # Имитация воздействия управляющих сигналов на процесс
+        # Здесь должен быть код, который взаимодействует с реальными устройствами или симулятором процесса
+        # Например, изменение температуры и соотношения газ/воздух в зависимости от управляющих сигналов
+        # current_temperature += temp_control_signal * коэффициент_мощности
+        # current_gas_air_ratio += gas_air_control_signal * коэффициент_регулировки
+        
+        # Печать текущих значений для мониторинга
+        print(f"Температура: {current_temperature}, Сигнал регулирования температуры: {temp_control_signal}")
+        print(f"Соотношение газ/воздух: {current_gas_air_ratio}, Сигнал регулирования соотношения газ/воздух: {gas_air_control_signal}")
+
+# Запускаем процесс управления
+control_process()
